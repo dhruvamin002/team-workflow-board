@@ -18,8 +18,10 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
     const { createTask } = useTasks()
     const create = (data) => {
         createTask(data)
+        cancelTask()
     }
-    const validate = () => {
+    const validate = (e) => {
+        e.preventDefault()
         if (ref.current) {
             const err: FormErrors = {title: '', description: '', assignee: ''}
             const formData = new FormData(ref.current)
@@ -42,7 +44,11 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
             if (!validationPassed) {
                 setErrors(err)
             } else {
-                create(formData)
+                const data = {}
+                for (const [key, value] of formData.entries()) {
+                    data[key] = value
+                }
+                create(data)
             }
         }
     }
@@ -81,7 +87,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
             <TextInput 
                 label="Assignee"
                 placeholder="Team member name"
-                required={false}
+                required={true}
                 id='task-assignee'
                 name='assignee'
                 error={errors.assignee}
@@ -96,7 +102,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
             <div className="task-form-action">
                 <div className="task-form-action-right">
                     <Button title="Cancel" type="btn--secondary" size="btn--md" onClick={cancelTask} />
-                    <Button title="Create Task" size="btn--md" onClick={validate} />
+                    <Button title="Create Task" size="btn--md" onClick={(e) => validate(e)} />
                 </div>
             </div>
         </form>

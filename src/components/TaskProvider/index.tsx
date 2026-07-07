@@ -1,45 +1,50 @@
-import { ReactNode, useReducer } from "react";
+import { ReactNode, useCallback, useMemo, useReducer } from "react";
 import TaskProviderContext from "../../contexts/tastContext";
 import { createTask, updateTask } from "../../utils";
 
-const INITIAL_STATE = {backlog: [], progress: [], done: []}
+const INITIAL_STATE = []
 
 function reducer(state, action) {
     switch(action.type) {
         case 'CREATE_TASK':
             const taskData = action.data
             const taskDataWithId = createTask(taskData)
-            const status = taskDataWithId.status
-            const newState = {...state}
-            newState[status].push(taskDataWithId)
-            return newState
+            return [ ...state,taskDataWithId ]
         case 'UPDATE_TASK':
+            console.log(action.data)
             const taskWithUpdatedData = action.data
-            const taskStatus = taskWithUpdatedData.status
             const updatedTaskWithTime = updateTask(taskWithUpdatedData)
-            const updatedState = {...state}
-            updatedState[status] =  state[taskStatus].map((d) => {
-                if (d.id === taskData.id) return updatedTaskWithTime
+            const updatedState =  state.map((d) => {
+                if (d.id === updatedTaskWithTime.id) return updatedTaskWithTime
                 return d
             })
             return updatedState
+        default:
+            return state
     }
 }
 
 export function TaskProvider({children} : {children: ReactNode}) {
     const [ tasks, dispatch ] = useReducer(reducer, INITIAL_STATE)
-    const createTask = (data) => {
+    const createTask = useCallback((data) => {
         dispatch({type: 'CREATE_TASK', data: data})
-    }
-    const updateTask = (data) => {
+    }, [])
+    const updateTask = useCallback((data) => {
         dispatch({type: 'UPDATE_TASK', data: data})
-    }
-    const moveTask = (data) => {}
+    }, [])
+    const segregatedTasks = useMemo(() => {
+        const data = {backlog: [], progress: [], done:[]}
+        console.log(tasks)
+        tasks.forEach(task => {
+            data[task.status]?.push(task)
+        })
+        return data
+    }, [tasks])
     const value = {
         createTask,
         updateTask,
-        moveTask,
-        tasks
+        tasks,
+        segregatedTasks
     }
     return <TaskProviderContext.Provider value={value}>{children}</TaskProviderContext.Provider>
 }

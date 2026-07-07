@@ -1,10 +1,12 @@
 import './App.css';
 import { AppContent } from './components';
-
+import { TaskProvider } from './components';
 
 function App() {
   return (
-    <AppContent />
+    <TaskProvider>
+      <AppContent />
+    </TaskProvider>
   );
 }
 
