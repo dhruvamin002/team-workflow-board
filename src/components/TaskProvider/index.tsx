@@ -3,8 +3,6 @@ import TaskProviderContext from "../../contexts/tastContext";
 import { createTask, updateTask } from "../../utils";
 import { useFilter, useLocalStorage } from "../../hooks";
 
-const INITIAL_STATE = []
-
 const PRIORITY_MAP = {'low': 1, 'medium': 2, 'high': 3}
 
 function reducer(state, action) {
@@ -21,6 +19,8 @@ function reducer(state, action) {
                 return d
             })
             return updatedState
+        case 'SET_TASKS':
+            return action.data
         default:
             return state
     }
@@ -39,6 +39,10 @@ export function TaskProvider({children} : {children: ReactNode}) {
     useEffect(() => {
         updateStorage(tasks)
     }, [tasks, updateStorage])
+
+    useEffect(() => {
+        dispatch({ type: 'SET_TASKS', data: storageTasks })
+    }, [storageTasks])
     
     const segregatedTasks = useMemo(() => {
         const filteredTask = tasks.filter(task => {

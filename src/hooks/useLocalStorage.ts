@@ -1,10 +1,21 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export function useLocalStorage(key) {
-    const [state] = useState(key)
-    const currentData = JSON.parse(localStorage.getItem(state) || '[]')
+    const [currentData, setCurrentData] = useState(() => JSON.parse(localStorage.getItem(key) || '[]'))
+
+    useEffect(() => {
+        const handleStorageEvent = (e: StorageEvent) => {
+            if (e.key === key) {
+                setCurrentData(JSON.parse(e.newValue || '[]'))
+            }
+        }
+        window.addEventListener('storage', handleStorageEvent)
+        return () => window.removeEventListener('storage', handleStorageEvent)
+    }, [key])
+
     const updateItem = useCallback((data) => {
-        localStorage.setItem(state, JSON.stringify(data || []))
-    }, [state])
+        localStorage.setItem(key, JSON.stringify(data || []))
+    }, [key])
+
     return [currentData, updateItem]
 }
