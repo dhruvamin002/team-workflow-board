@@ -5,6 +5,7 @@ import { TaskForm } from "../TaskForm"
 import { useTasks } from "../../hooks"
 import { BoardView } from "../BoardView"
 import "./style.css"
+import { FilterStrip } from "../FilterStrip"
 
 export function AppContent() {
     const { segregatedTasks } = useTasks()
@@ -29,6 +30,7 @@ export function AppContent() {
         <div>
             <Header createNewTask={makeModalVisible} />
             <main className="main">
+                <FilterStrip />
                 <BoardView tasks={segregatedTasks} openEditView={openEditView} />
             </main>
             <Modal closeModal={closeModal} isOpen={openModal}>
