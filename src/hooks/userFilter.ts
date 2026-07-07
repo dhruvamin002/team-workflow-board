@@ -1,7 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { parseFilterStateFromSearch,  buildSearchFromFilterState } from "../utils";
 
 export function useFilter() {
-    const [state, setState] = useState({})
+    const [state, setState] = useState(() => parseFilterStateFromSearch(window.location.search))
+
+    useEffect(() => {
+        const newSearch = buildSearchFromFilterState(state)
+        const newUrl = `${window.location.pathname}${newSearch ? `?${newSearch}` : ''}${window.location.hash}`
+        window.history.replaceState(null, '', newUrl)
+    }, [state])
+
     const filterBySearchPriority = (filterParameter, value) => {
         setState(prev => {
             const newState = {...prev}
