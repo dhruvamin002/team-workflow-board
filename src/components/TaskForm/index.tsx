@@ -12,14 +12,19 @@ type FormErrors = {
     assignee: string
 }
 
-export function TaskForm({cancelTask}: {cancelTask: () => void}) {
+export function TaskForm({editData = {}, cancelTask}: {editData: {}, cancelTask: () => void}) {
     const ref = useRef<HTMLFormElement | null>(null)
     const [ errors, setErrors ] = useState<FormErrors>({title: '', description: '', assignee: ''})
-    const { createTask } = useTasks()
+    const { createTask, updateTask } = useTasks()
     const create = (data) => {
         createTask(data)
         cancelTask()
     }
+    const update = (data) => {
+        updateTask(data)
+        cancelTask()
+    }
+    const isEditMode = Object.keys(editData).length > 0
     const validate = (e) => {
         e.preventDefault()
         if (ref.current) {
@@ -48,10 +53,15 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 for (const [key, value] of formData.entries()) {
                     data[key] = value
                 }
-                create(data)
+                if (!isEditMode) {
+                    create(data)
+                } else {
+                    update({...editData, ...data})
+                }
             }
         }
     }
+    console.log(editData)
     return (
         <form className="task-form" ref={ref}>
             <TextInput 
@@ -61,6 +71,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 id='task-title'
                 name='title'
                 error={errors.title}
+                defaultValue={editData.title ? editData.title : ''}
             />
             <TextArea 
                 label="Description"
@@ -69,6 +80,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 id='task-description'
                 name='description'
                 error={errors.description}
+                defaultValue={editData.description ? editData.description : ''}
             />
             <Select 
                 label="Status"
@@ -76,6 +88,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 values={[['backlog', 'Backlog'], ['progress', 'In Progress'], ['done', 'Done']]}
                 id='task-priority'
                 name='status'
+                defaultValue={editData.status ? editData.status : ''}
             />
             <Select 
                 label="Priority"
@@ -83,6 +96,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 values={[['medium', 'Medium'], ['low', 'Low'], ['high', 'High']]}
                 id='task-priority'
                 name='priority'
+                defaultValue={editData.priority ? editData.priority : ''}
             />
             <TextInput 
                 label="Assignee"
@@ -91,6 +105,7 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 id='task-assignee'
                 name='assignee'
                 error={errors.assignee}
+                defaultValue={editData.assignee ? editData.assignee : ''}
             />
             <TextInput 
                 label="Tags"
@@ -98,8 +113,14 @@ export function TaskForm({cancelTask}: {cancelTask: () => void}) {
                 required={false}
                 id='task-tags'
                 name='tags'
+                defaultValue={editData.tags ? editData.tags : ''}
             />
-            <div className="task-form-action">
+            <div className={`task-form-action ${isEditMode ? 'task-form__actions--split' : ''}`}>
+                {isEditMode ? (
+                    <div className="task-form-action-left">
+                        <Button title="Delete" type="btn--danger" size="btn--md" onClick={() => {}} />
+                    </div>
+                ) : null}
                 <div className="task-form-action-right">
                     <Button title="Cancel" type="btn--secondary" size="btn--md" onClick={cancelTask} />
                     <Button title="Create Task" size="btn--md" onClick={(e) => validate(e)} />

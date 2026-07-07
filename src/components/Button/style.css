@@ -27,3 +27,7 @@
     color: var(--color-text);
     border-color: var(--color-border);
 }
+.btn--danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-inverse);
+}

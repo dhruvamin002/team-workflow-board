@@ -9,6 +9,7 @@ import "./style.css"
 export function AppContent() {
     const { segregatedTasks } = useTasks()
     const [openModal, setOpenModal] = useState(false)
+    const [editData, setEditData] = useState({})
 
     const makeModalVisible = useCallback(() => {
         setOpenModal(true)
@@ -16,15 +17,25 @@ export function AppContent() {
 
     const closeModal = useCallback(() => {
         setOpenModal(false)
+        setEditData({})
     }, [])
+
+    const openEditView = useCallback((data) => {
+        setEditData(data)
+        setOpenModal(true)
+    }, [])
+
     return (
         <div>
             <Header createNewTask={makeModalVisible} />
             <main className="main">
-                <BoardView tasks={segregatedTasks} />
+                <BoardView tasks={segregatedTasks} openEditView={openEditView} />
             </main>
             <Modal closeModal={closeModal} isOpen={openModal}>
-                <TaskForm cancelTask={closeModal} />
+                <TaskForm 
+                    cancelTask={closeModal}
+                    editData={editData}
+                />
             </Modal>
         </div>
     )

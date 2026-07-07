@@ -6,8 +6,9 @@ type TextAreaInputProps = {
     id?: string
     name: string
     error?: string
+    defaultValue?: string
 }
-export function TextArea({label, placeholder, required, id, name, error}: TextAreaInputProps) {
+export function TextArea({label, placeholder, required, id, name, error, defaultValue}: TextAreaInputProps) {
     return (
         <div className="text-input">
             {label && <label htmlFor={id} className="text-input__label">{label} {required && <span className="text-input__required">*</span>}</label>}
@@ -17,6 +18,7 @@ export function TextArea({label, placeholder, required, id, name, error}: TextAr
                 required={required}
                 className={`text-input-field text-input__field--textarea ${error ? 'text-input__field--error': ''}`}
                 name={name}
+                defaultValue={defaultValue ? defaultValue : ''}
             />
             {error ? <span className="text-input__error">{error}</span> : null}
         </div>

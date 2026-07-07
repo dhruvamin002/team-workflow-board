@@ -15,7 +15,7 @@ function Tags({tags}) {
     )
 }
 
-function Card({id, title, description, assignee, tags, status, priority, updatedAt}) {
+function Card({id, title, description, assignee, tags, status, priority, updatedAt, openEditView}) {
     const { updateTask } = useTasks()
     const onStatusUpdate = (e) => {
         updateTask({id, title, description, assignee, tags, status: e.target.value, priority, updatedAt})
@@ -23,7 +23,7 @@ function Card({id, title, description, assignee, tags, status, priority, updated
     return(
         <div className="card task-card ">
             <div className="task-card-body">
-                <div className="task-card-top">
+                <div className="task-card-top" onClick={() => openEditView({id, title, description, assignee, tags, status, priority})}>
                     <div className="task-card-inner">
                         <div className="task-card-row1">
                             <h3 className="task-card-title">{title}</h3>
@@ -52,31 +52,42 @@ function EmptyTask() {
     return <p className="task-column-no-task">No tasks</p>
 }
 
-function TaskView({tasks}) {
+function TaskView({tasks, openEditView}) {
     return tasks.map((task) => {
-        return <Card {...task} key={task.id}/>
+        return <Card {...task} key={task.id} openEditView={openEditView} />
     })
 }
 
-function BoardColumn({title, tasks}) {
+function BoardColumn({title, tasks, openEditView}) {
     return (
         <div className="task-column">
             <div className="task-column-header">
                 <h2 className="task-column-header-title">{title}</h2>
             </div>
             <div className="task-column-list">
-                {tasks.length === 0 ? <EmptyTask /> : <TaskView tasks={tasks} />}
-                
+                {tasks.length === 0 ? <EmptyTask /> : <TaskView tasks={tasks} openEditView={openEditView} />}
             </div>
         </div>
     )
 }
-export function BoardView({ tasks }) {
+export function BoardView({ tasks, openEditView }) {
     return (
         <div className="task-board">
-            <BoardColumn tasks={tasks.backlog} title="Backlog" />
-            <BoardColumn tasks={tasks.progress} title="In Progress" />
-            <BoardColumn tasks={tasks.done} title="Done" />
+            <BoardColumn 
+                tasks={tasks.backlog}
+                title="Backlog"
+                openEditView={openEditView}
+            />
+            <BoardColumn
+                tasks={tasks.progress}
+                title="In Progress"
+                openEditView={openEditView}
+            />
+            <BoardColumn
+                tasks={tasks.done}
+                title="Done"
+                openEditView={openEditView}
+            />
         </div>
     )
 }

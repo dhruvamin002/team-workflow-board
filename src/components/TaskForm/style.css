@@ -5,7 +5,7 @@
 }
 .task-form-action {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: var(--space-sm);
     padding-top: var(--space-sm);
     border-top: 1px solid var(--color-border);
@@ -13,4 +13,11 @@
 .task-form-action-right {
     display: flex;
     gap: var(--space-sm);
+}
+.task-form-action-left {
+    display: flex;
+    gap: var(--space-sm);
+}
+.task-form__actions--split {
+    justify-content: space-between;
 }

@@ -6,8 +6,9 @@ type TextInputProps = {
     id?: string
     name: string
     error?: string
+    defaultValue?: string
 }
-export function TextInput({label, placeholder, required, id, name, error}: TextInputProps) {
+export function TextInput({label, placeholder, required, id, name, error, defaultValue}: TextInputProps) {
     return (
         <div className="text-input">
             {label && <label htmlFor={id} className={`text-input__label`}>{label} {required && <span className="text-input__required">*</span>}</label>}
@@ -18,6 +19,7 @@ export function TextInput({label, placeholder, required, id, name, error}: TextI
                 required={required}
                 className={`text-input-field ${error ? 'text-input__field--error' : ''}`}
                 name={name}
+                defaultValue={defaultValue ? defaultValue : ''}
             />
             {error ? <span className="text-input__error">{error}</span> : null}
         </div>
