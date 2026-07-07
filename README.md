@@ -1,70 +1,117 @@
-# Getting Started with Create React App
+# Ever Quint — Team WorkFlow Board
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A kanban-style task management app built with React and TypeScript.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## How to Run
 
-### `npm start`
+```bash
+npm install
+npm start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Opens at `http://localhost:3000`.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Architecture Overview
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### How the App is Structured
 
-### `npm run build`
+```
+App
+└── TaskProvider          # Global state: tasks + filter/sort
+    └── AppContent
+        ├── Header        # "New Task" button
+        ├── FilterStrip   # Search, status checkboxes, priority & sort selects
+        ├── BoardView     # Renders three columns (Backlog / In Progress / Done)
+        └── Modal
+            └── TaskForm  # Create & edit tasks
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**State lives in two places:**
+- `TaskProvider` — task list (via `useReducer`) and filter/sort state (via `useFilter`)
+- `useLocalStorage` — persistence layer; syncs task state to `localStorage` and listens for cross-tab updates via the `storage` event
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Hooks:**
+- `useFilter` — manages filter & sort state; syncs to URL query string via `history.replaceState`
+- `useLocalStorage` — reads initial data from `localStorage`, exposes a stable `updateItem` callback, and fires a `storage` event listener for cross-tab sync
+- `useTasks` — thin wrapper over `TaskProviderContext` for consuming state in components
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Utils (`src/utils/index.ts`):**
+- `createTask` / `updateTask` — stamp tasks with `id`, `createdAt`, `updatedAt`
+- `parseFilterStateFromSearch` / `buildSearchFromFilterState` — serialize/deserialize filter state to/from URL query params
 
-### `npm run eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Rationale for Key Decisions
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**State management — Context + useReducer**
+Chosen over a library (Redux, Zustand) to keep dependencies minimal for a small app. `useReducer` gives predictable state transitions for task mutations (`CREATE_TASK`, `UPDATE_TASK`, `SET_TASKS`). Filter/sort state is separate (`useFilter`) because it has a different lifecycle — it's URL-driven, not task-driven.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+**Component design — uncontrolled inputs**
+`TextInput`, `Select`, and `CheckBox` use `defaultValue` / uncontrolled inputs. This keeps form components simple and avoids threading `value` + `onChange` everywhere. The trade-off is the UI doesn't visually reflect state restored from the URL (see Known Limitations).
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Data layer — localStorage + storage event**
+No backend. Tasks are persisted to `localStorage` via a `useEffect` in `TaskProvider` that fires on every task change. Cross-tab sync is handled by the native `storage` event in `useLocalStorage`, which only fires in tabs that did *not* make the change — so there's no loop risk.
 
-## Learn More
+**URL-based filters**
+Filter and sort state is serialized into query params (`q`, `priority`, `status`, `sort`, `dir`) using `history.replaceState` (not `pushState`) so filters are shareable and survive refresh without polluting browser history.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Known Limitations / Trade-offs
 
-### Code Splitting
+- **Uncontrolled inputs don't reflect restored URL state visually** — Priority, Sort By, and Status checkboxes don't show the correct value when the page is loaded with a pre-filled URL. The filter logic itself works correctly; only the visual state of the inputs is wrong. Fixing this requires converting those components to controlled inputs.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **No localStorage versioning** — Tasks are stored as a plain JSON array with no schema version field. If the data shape changes in a future release, stale data in `localStorage` will silently fail or render incorrectly. A migration layer (reading a `_version` field and transforming old shapes) would be needed before shipping to production.
 
-### Analyzing the Bundle Size
+- **No persistence for filters** — Filter/sort state lives in the URL, not `localStorage`, so it's only preserved if the URL is shared or the tab is refreshed. Closing and reopening the app resets filters.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- **Tasks are in-memory only across tabs** — Cross-tab sync via the `storage` event delivers the full replaced task list (`SET_TASKS`). This means any in-flight optimistic state in one tab is overwritten when another tab saves. Acceptable for this scale; would need conflict resolution in a real collaborative app.
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## AI Assistance
 
-### Advanced Configuration
+### Where it was used
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+**1. URL query string sync (`src/hooks/userFilter.ts`, `src/utils/index.ts`)**
+AI generated the initial implementation of `parseFilterStateFromSearch` and `buildSearchFromFilterState` and wired them into `useFilter` with `history.replaceState`.
 
-### Deployment
+**What was changed from the suggestion:**
+The AI placed both helper functions inline inside `userFilter.ts`. They were moved to `src/utils/index.ts` to keep the hook focused on state logic and make the serialization utilities reusable.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+**2. Cross-tab localStorage sync (`src/hooks/useLocalStorage.ts`, `src/components/TaskProvider/index.tsx`)**
+The idea to use the native `storage` event for cross-tab sync was proposed by the developer. AI implemented it: adding React state to `useLocalStorage`, wiring the `storage` event listener, adding `SET_TASKS` to the reducer, and adding a `useEffect` in `TaskProvider` to dispatch it when `storageTasks` changes.
 
-### `npm run build` fails to minify
+**What was changed from the suggestion:**
+The overall approach was directed by the developer. AI's initial `useLocalStorage` also included an unnecessary `useState(key)` that was just storing the key string — this was identified as redundant in review and removed, simplifying the hook to use `key` directly.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+## Example Refactor
+
+**Removing `useState` from `useLocalStorage`**
+
+The initial implementation stored the `key` argument in React state:
+
+```ts
+const [state, _] = useState(key)
+const currentData = JSON.parse(localStorage.getItem(state) || '[]')
+const updateItem = (data) => {
+    localStorage.setItem(state, JSON.stringify(data || []))
+}
+```
+
+`state` here was just a frozen copy of `key` — it never changed and provided no benefit over using `key` directly. After adding `useCallback` to stabilize `updateItem`, it became obvious `useState` was dead weight. It was removed:
+
+```ts
+const currentData = JSON.parse(localStorage.getItem(key) || '[]')
+const updateItem = useCallback((data) => {
+    localStorage.setItem(key, JSON.stringify(data || []))
+}, [key])
+```
+
+This simplifies the hook and removes a misleading use of `useState` that implied the key could change reactively.
