@@ -1,0 +1,16 @@
+.task-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+.task-form-action {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-border);
+}
+.task-form-action-right {
+    display: flex;
+    gap: var(--space-sm);
+}

@@ -1,0 +1,43 @@
+.modal {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: modal-slide-in 200ms ease;
+    border-width: 0;
+}
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+.modal-title {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+}
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background-color var(--transition), color var(--transition);
+}
+.modal-body {
+    padding: var(--space-lg);
+    overflow-y: auto;
+}
