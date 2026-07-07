@@ -21,25 +21,23 @@ export function FilterStrip() {
                 id="filter-status"
                 boxes={[["backlog", "Backlog"], ["progress", "In Progress"], ["done", "Done"]]}
                 onChange={filterByStatus}
-                checked={filterState && filterState.filter && filterState.filter.status ? filterState.filter.status : []}
+                defaultValue={filterState.filter && filterState.filter.status ? filterState.filter.status : []}
             />
             <Select
                 label="Priority"
                 values={[["all", "ALL Priority"], ["low", "Low"], ["medium", "Medium"], ["high", "High"]]}
                 id="filter-priority"
                 name="filter-priority"
-                selected="all"
                 onChange={(e) => filterBySearchPriority('priority', e.target.value)}
-                defaultValue={(filterState && filterState.filter && filterState.filter.priority) || 'all'}
+                selected={(filterState && filterState.filter && filterState.filter.priority) || 'all'}
             />
             <Select 
                 label="Sort By"
                 values={[["priority", "Priority"], ["created", "Created Date"], ["updated", "Updated Date"]]}
                 id="filter-sortby"
                 name="filter-sortby"
-                selected="priority"
                 onChange={(e) => changeSort(e.target.value)}
-                defaultValue={(filterState && filterState.sortBy) || 'priority'}
+                selected={(filterState && filterState.sortBy) || 'priority'}
             />
             <div className="task-filters__actions">
                 <Button title={!filterState.sortDirection || filterState.sortDirection === "asc" ? "ASC" : "DSC"} type="btn--secondary" onClick={changeSortDirection}/>

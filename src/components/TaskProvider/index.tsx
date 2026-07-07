@@ -1,7 +1,7 @@
-import { ReactNode, useCallback, useMemo, useReducer } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useReducer } from "react";
 import TaskProviderContext from "../../contexts/tastContext";
 import { createTask, updateTask } from "../../utils";
-import { useFilter } from "../../hooks";
+import { useFilter, useLocalStorage } from "../../hooks";
 
 const INITIAL_STATE = []
 
@@ -14,7 +14,6 @@ function reducer(state, action) {
             const taskDataWithId = createTask(taskData)
             return [ ...state,taskDataWithId ]
         case 'UPDATE_TASK':
-            console.log(action.data)
             const taskWithUpdatedData = action.data
             const updatedTaskWithTime = updateTask(taskWithUpdatedData)
             const updatedState =  state.map((d) => {
@@ -28,15 +27,19 @@ function reducer(state, action) {
 }
 
 export function TaskProvider({children} : {children: ReactNode}) {
-    const [ tasks, dispatch ] = useReducer(reducer, INITIAL_STATE)
+    const [ storageTasks, updateStorage ] = useLocalStorage('tasks')
+    const [ tasks, dispatch ] = useReducer(reducer, storageTasks)
     const [filterState, filterByStatus, filterBySearchPriority, changeSort, changeSortDirection] = useFilter()
-    console.log('filterState', filterState)
     const createTask = useCallback((data) => {
         dispatch({type: 'CREATE_TASK', data: data})
     }, [])
     const updateTask = useCallback((data) => {
         dispatch({type: 'UPDATE_TASK', data: data})
     }, [])
+    useEffect(() => {
+        updateStorage(tasks)
+    }, [tasks, updateStorage])
+    
     const segregatedTasks = useMemo(() => {
         const filteredTask = tasks.filter(task => {
             if (filterState.filter) {

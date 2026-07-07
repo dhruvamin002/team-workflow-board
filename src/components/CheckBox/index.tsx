@@ -4,6 +4,7 @@ export function CheckBox({id, name, options, label, required, defaultValue, boxe
     const handleCheckBox = useCallback((e, val) => {
         onChange && onChange(val, e.target.checked)
     }, [onChange])
+    console.log(defaultValue)
     return (
         <div className="text-checkbox">
             {label && <label htmlFor={id} className={`text-input__label`}>{label} {required && <span className="text-input__required">*</span>}</label>}
@@ -17,6 +18,7 @@ export function CheckBox({id, name, options, label, required, defaultValue, boxe
                                 className="input-type-checkbox"
                                 name={name}
                                 id={box[0]}
+                                checked={defaultValue.includes(box[0])}
                                 onChange={(e) => handleCheckBox(e, box[0])}
                             />
                             <label htmlFor={box[0]}>{box[1]}</label>

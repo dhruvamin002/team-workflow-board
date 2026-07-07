@@ -61,7 +61,6 @@ export function TaskForm({editData = {}, cancelTask}: {editData: {}, cancelTask:
             }
         }
     }
-    console.log(editData)
     return (
         <form className="task-form" ref={ref}>
             <TextInput 
