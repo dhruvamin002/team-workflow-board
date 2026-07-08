@@ -1,0 +1,34 @@
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--space-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    line-height: 1.4;
+}
+.tag-medium {
+    background-color: var(--color-warning-light);
+    color: var(--priority-medium);
+}
+.tag-high {
+    background-color: var(--color-danger-light);
+    color: var(--priority-high);
+}
+.tag-low {
+    background-color: #f1f5f9;
+    color: var(--priority-low);
+}
+.task-card-assignee {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+.tag-primary {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+.task-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}

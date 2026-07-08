@@ -4,7 +4,6 @@ export function CheckBox({id, name, options, label, required, defaultValue, boxe
     const handleCheckBox = useCallback((e, val) => {
         onChange && onChange(val, e.target.checked)
     }, [onChange])
-    console.log(defaultValue)
     return (
         <div className="text-checkbox">
             {label && <label htmlFor={id} className={`text-input__label`}>{label} {required && <span className="text-input__required">*</span>}</label>}
